@@ -1,55 +1,64 @@
-# CodeReviewer AI
+# CodeReviewer AI 🔍
 
-An intelligent, bilingual Static Code Analysis and Quality Assessment tool for Python code, built with FastAPI, Streamlit, and Python native Abstract Syntax Tree (ast) module.
-
-## Features
-- Abstract Syntax Tree (AST) Parsing: Safely analyzes Python source code structure without code execution.
-- Dynamic Health Scoring: Calculates a quality score (0-100) based on structural metrics and code smell checks.
-- Code Smell & Anti-Pattern Detection: Highlights overly long functions, missing docstrings, and syntax errors with line precision.
-- Actionable Refactoring Tips: Provides user-friendly, clean code recommendations.
-- Bilingual & Friendly UI (English / Persian): Seamless toggle between English and Persian interface and report messages.
-- RESTful API Architecture: Powered by FastAPI with typed Pydantic request/response schemas.
-
-## Tech Stack
-- Backend: Python 3.11+, FastAPI, Uvicorn, Pydantic
-- Frontend: Streamlit
-- Code Engine: Python Native ast (Abstract Syntax Tree) module
-- Package Manager: uv
+A clean, lightweight, and bilingual Static Code Analysis tool for Python, built to inspect code quality and health without execution risks.
 
 ---
 
-## Engineering Challenges & Solutions (Interview Prep)
+## 🌟 What It Does
 
-### Challenge 1: Multi-Language Schema Mismatch in FastAPI (ResponseValidationError)
-- Problem: When introducing bilingual support (EN/FA) for issues and suggestions, analyzer.py was updated to return localized dictionaries (list[dict]) instead of plain strings (list[str]). This caused FastAPI to throw a ResponseValidationError (422/500) because the Pydantic schema in main.py still expected list[str].
-- Solution: Refactored the CodeAnalysisResponse Pydantic model in main.py to match the data payload by updating issues and suggestions fields to list[dict].
-- Takeaway: Always ensure strict synchronization between domain logic data structures and API validation schemas (Pydantic).
-
-### Challenge 2: Parsing Unsafe Code Without Execution Risk
-- Problem: Running untrusted user code to check for quality is a massive security risk (RCE / Code Injection).
-- Solution: Used Python built-in ast.parse() module. AST parses code into an Abstract Syntax Tree purely at the syntax/grammar level without executing a single line of Python code.
+- **Safe Code Inspection**: Uses Python's native `ast` module to analyze code structures without running untrusted code.
+- **Health Scoring**: Generates a dynamic score (0–100) based on code structure, docstring presence, and function length.
+- **Code Smell Detection**: Identifies syntax errors, overly long functions (>15 lines), and missing docstrings.
+- **Bilingual Interface**: Supports seamless toggling between English and Persian for UI and report messages.
 
 ---
 
-## Getting Started
+## 🛠️ Tech Stack
 
-### Prerequisites
-Make sure you have uv installed.
+- **Backend:** FastAPI, Pydantic
+- **Frontend:** Streamlit
+- **Code Engine:** Python `ast` (Abstract Syntax Tree)
+- **Package Manager:** `uv`
 
-### 1. Clone & Setup Environment
+---
+
+## 🚀 Quick Start
+
+### 1. Clone
 git clone https://github.com/Mohammadsajjad-Rahmani/CodeReviewer-AI.git
 cd codereviewer-ai
-uv sync
 
-### 2. Run Backend Server
+### 2. Run Backend (FastAPI)
 uv run uvicorn main:app --reload
 
-The API will be available at http://localhost:8000 (Swagger docs at http://localhost:8000/docs).
-
-### 3. Run Streamlit UI
-In a separate terminal, execute:
+### 3. Run Frontend (Streamlit)
 uv run streamlit run app_ui.py
 
-## API Endpoints
-- GET /: Health check endpoint.
-- POST /analyze: Accepts a Python code payload and returns metrics, score, issues, and localized refactoring suggestions.
+---
+
+## 📝 Usage Example
+
+**Input Code:**
+def calculate_total(items):
+    total = 0
+    for item in items:
+        total += item
+    return total
+
+**Output Report:**
+- **Code Health Score:** 90 / 100
+- **Metrics:** 1 Function | 5 Total Lines
+- **Issues Found:** Function `calculate_total` is missing a docstring.
+- **Suggestions:** Add a short docstring to improve code readability.
+
+---
+
+## 💡 Engineering Challenges & Solutions
+
+### 1. Schema Mismatch in FastAPI (`ResponseValidationError`)
+- **Problem:** When adding bilingual support, `analyzer.py` was updated to return localized dictionaries (`list[dict]`) instead of plain strings (`list[str]`). This triggered a `422/500 ResponseValidationError` in FastAPI because the Pydantic response schema still expected `list[str]`.
+- **Solution:** Updated the `CodeAnalysisResponse` Pydantic model in `main.py` so that `issues` and `suggestions` fields match the `list[dict]` structure.
+
+### 2. Inspecting Untrusted Code Safely
+- **Problem:** Executing user-submitted code to analyze its quality creates severe security risks like Remote Code Execution (RCE).
+- **Solution:** Leveraged Python's built-in `ast.parse()` to analyze code structure purely at the syntax tree level without executing a single line of code.
