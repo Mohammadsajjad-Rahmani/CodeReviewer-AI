@@ -11,7 +11,6 @@ app = FastAPI(
 class CodeRequest(BaseModel):
     code: str
 
-# تایپ لیست‌ها از list[str] به list[dict] تغییر کرد
 class CodeAnalysisResponse(BaseModel):
     valid_syntax: bool
     score: int
