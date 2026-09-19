@@ -37,7 +37,7 @@ An intelligent, bilingual Static Code Analysis and Quality Assessment tool for P
 Make sure you have uv installed.
 
 ### 1. Clone & Setup Environment
-git clone https://github.com/YOUR_USERNAME/codereviewer-ai.git
+git clone https://github.com/Mohammadsajjad-Rahmani/CodeReviewer-AI.git
 cd codereviewer-ai
 uv sync
 
