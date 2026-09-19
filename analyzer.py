@@ -24,7 +24,6 @@ def analyze_python_code(code_str: str) -> dict:
     issues = []
     suggestions = []
 
-    # پیمایش درخت کد
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
             classes_count += 1
@@ -32,16 +31,13 @@ def analyze_python_code(code_str: str) -> dict:
         elif isinstance(node, ast.FunctionDef):
             functions_count += 1
             
-            # بررسی Docstring
             if not ast.get_docstring(node):
                 missing_docstrings.append(node.name)
                 
-            # بررسی طول تابع (بیشتر از ۱۵ خط)
             func_length = node.end_lineno - node.lineno
             if func_length > 15:
                 long_functions.append((node.name, func_length))
 
-    # ارزیابی امتیاز و ساخت پیام‌های ساختاریافته
     score = 100
 
     if missing_docstrings:
@@ -69,7 +65,6 @@ def analyze_python_code(code_str: str) -> dict:
 
     score = max(0, min(100, score))
 
-    # پیام‌های پیش‌فرض در صورت نبود مشکل
     if not issues:
         issues.append({
             "en": "Great job! No major issues found.",
