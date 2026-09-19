@@ -132,11 +132,9 @@ with col2:
                         if not data["valid_syntax"]:
                             st.error(f"{t['syntax_error']}\n\n`{data.get('error_message', '')}`")
                         else:
-                            # نمایش امتیاز سلامت
                             score = data["score"]
                             st.metric(label=t["score_label"], value=f"{score} / 100")
                             
-                            # نمایش آمار کدی
                             metrics = data["metrics"]
                             m_col1, m_col2, m_col3 = st.columns(3)
                             m_col1.metric(t["metric_lines"], metrics["total_lines"])
@@ -145,13 +143,11 @@ with col2:
                             
                             st.divider()
                             
-                            # نمایش مشکلات
                             st.markdown(f"#### {t['issues_header']}")
                             for issue in data["issues"]:
                                 text = issue.get(lang_code, issue.get("en"))
                                 st.write(f"- {text}")
                                 
-                            # نمایش پیشنهادها
                             st.markdown(f"#### {t['suggestions_header']}")
                             for sug in data["suggestions"]:
                                 text = sug.get(lang_code, sug.get("en"))
