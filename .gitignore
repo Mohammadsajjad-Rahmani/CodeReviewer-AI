@@ -1,0 +1,17 @@
+# Python environment & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Streamlit & IDE
+.streamlit/
+.vscode/
+.idea/
+
+# Distribution & build
+dist/
+build/
+*.egg-info/
