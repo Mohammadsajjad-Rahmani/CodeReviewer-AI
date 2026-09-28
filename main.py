@@ -20,11 +20,11 @@ class CodeAnalysisResponse(BaseModel):
     error_message: str | None = None
 
 @app.get("/")
-def read_root():
+async def read_root():
     return {"status": "ok", "message": "CodeReviewer AI Service is running"}
 
 @app.post("/analyze", response_model=CodeAnalysisResponse)
-def analyze_code(payload: CodeRequest):
+async def analyze_code(payload: CodeRequest):
     if not payload.code.strip():
         raise HTTPException(status_code=400, detail="Code payload cannot be empty.")
     

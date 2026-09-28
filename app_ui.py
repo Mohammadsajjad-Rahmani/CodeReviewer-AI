@@ -1,157 +1,279 @@
-import streamlit as st
 import requests
+import streamlit as st
 
-st.set_page_config(page_title="CodeReviewer AI", page_icon="🔍", layout="wide")
+# تنظیمات اولیه صفحه
+st.set_page_config(
+    page_title="CodeReviewer AI",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 BACKEND_URL = "http://localhost:8000/analyze"
 
+# دیکشنری متون و ترجمه‌ها
 TRANSLATIONS = {
     "English": {
         "lang_code": "en",
-        "title": "🔍 CodeReviewer AI",
-        "subtitle": "Smart & Friendly Python Code Analysis",
-        "input_header": "📝 Input Python Code",
-        "input_label": "Paste your code here:",
-        "upload_label": "Or upload a .py file:",
+        "title": "CodeReviewer AI",
+        "subtitle": "Smart & Automated Python Code Analysis",
+        "input_header": "📝 Source Code Input",
+        "input_label": "Paste your Python code below:",
+        "upload_label": "Upload a .py file",
         "btn_analyze": "🚀 Analyze Code",
-        "output_header": "📊 Analysis Summary",
-        "score_label": "Code Health Score",
+        "output_header": "📊 Analysis Dashboard",
+        "score_label": "Health Score",
         "metric_lines": "Lines of Code",
         "metric_funcs": "Functions",
         "metric_classes": "Classes",
-        "issues_header": "⚠️ Things to Look At:",
-        "suggestions_header": "💡 Quick Tips for Improvement:",
-        "empty_warning": "Please enter some Python code first!",
-        "syntax_error": "Oops! There is a syntax error in your code.",
-        "server_error": "Could not connect to the server: ",
-        "default_code": '''def calculate_total(items):
+        "issues_header": "⚠️ Issues Identified",
+        "suggestions_header": "💡 Refactoring Tips",
+        "empty_warning": "Please enter or upload Python code to analyze.",
+        "syntax_error": "Syntax Error Detected!",
+        "server_error": "Server connection failed: ",
+        "tab_overview": "📈 Overview",
+        "tab_issues": "⚠️ Issues & Recommendations",
+        "default_code": """def calculate_total(items):
     total = 0
     for item in items:
         total += item
     return total
 
-def very_long_function_example():
-    print("Line 1")
-    print("Line 2")
-    print("Line 3")
-    print("Line 4")
-    print("Line 5")
-    print("Line 6")
-    print("Line 7")
-    print("Line 8")
-    print("Line 9")
-    print("Line 10")
-    print("Line 11")
-    print("Line 12")
-    print("Line 13")
-    print("Line 14")
-    print("Line 15")
-    print("Line 16")
-'''
+def process_heavy_data_without_docstring():
+    print("Step 1")
+    print("Step 2")
+    print("Step 3")
+    print("Step 4")
+    print("Step 5")
+    print("Step 6")
+    print("Step 7")
+    print("Step 8")
+    print("Step 9")
+    print("Step 10")
+    print("Step 11")
+    print("Step 12")
+    print("Step 13")
+    print("Step 14")
+    print("Step 15")
+    print("Step 16")
+""",
     },
     "فارسی": {
         "lang_code": "fa",
-        "title": "🔍 CodeReviewer AI",
-        "subtitle": "تحلیل هوشمند و دوستانه کدهای پایتون",
-        "input_header": "📝 کد پایتون ورودی",
-        "input_label": "کدت رو اینجا بنویس یا پیست کن:",
-        "upload_label": "یا یک فایل .py آپلود کن:",
-        "btn_analyze": "🚀 بررسی کیفیت کد",
-        "output_header": "📊 خلاصه وضعیت کد",
+        "title": "سامانه هوشمند CodeReviewer AI",
+        "subtitle": "تحلیل خودکار و بررسی کیفیت کدهای پایتون",
+        "input_header": "📝 کد ورودی پایتون",
+        "input_label": "کد پایتون خود را در باکس زیر وارد کنید:",
+        "upload_label": "یا یک فایل py. آپلود کنید",
+        "btn_analyze": "🚀 شروع بررسی کیفیت کد",
+        "output_header": "📊 داشبورد تحلیل کد",
         "score_label": "امتیاز سلامت کد",
-        "metric_lines": "تعداد خط‌ها",
+        "metric_lines": "تعداد خطوط",
         "metric_funcs": "توابع",
         "metric_classes": "کلاس‌ها",
-        "issues_header": "⚠️ مواردی که بهتره بررسی بشه:",
-        "suggestions_header": "💡 پیشنهادهای خفن برای بهبود کد:",
-        "empty_warning": "لطفاً اول یک قطعه کد وارد کن!",
-        "syntax_error": "اوپس! یک خطای سینتکسی توی کدت وجود داره.",
-        "server_error": "خطا در ارتباط با سرور: ",
-        "default_code": '''def calculate_total(items):
+        "issues_header": "⚠️ موارد قابل بهبود (Issues)",
+        "suggestions_header": "💡 پیشنهادهای بازسازی کد (Refactoring)",
+        "empty_warning": "لطفاً ابتدا کدی برای بررسی وارد کنید!",
+        "syntax_error": "خطای سینتکسی در کد یافت شد!",
+        "server_error": "ارتباط با سرور برقرار نشد: ",
+        "tab_overview": "📈 نگاه کلی",
+        "tab_issues": "⚠️ مشکلات و پیشنهادها",
+        "default_code": """def calculate_total(items):
     total = 0
     for item in items:
         total += item
     return total
 
-def very_long_function_example():
-    print("Line 1")
-    print("Line 2")
-    print("Line 3")
-    print("Line 4")
-    print("Line 5")
-    print("Line 6")
-    print("Line 7")
-    print("Line 8")
-    print("Line 9")
-    print("Line 10")
-    print("Line 11")
-    print("Line 12")
-    print("Line 13")
-    print("Line 14")
-    print("Line 15")
-    print("Line 16")
-'''
-    }
+def process_heavy_data_without_docstring():
+    print("Step 1")
+    print("Step 2")
+    print("Step 3")
+    print("Step 4")
+    print("Step 5")
+    print("Step 6")
+    print("Step 7")
+    print("Step 8")
+    print("Step 9")
+    print("Step 10")
+    print("Step 11")
+    print("Step 12")
+    print("Step 13")
+    print("Step 14")
+    print("Step 15")
+    print("Step 16")
+""",
+    },
 }
 
+# --- انتخاب زبان از سایدبار ---
 with st.sidebar:
-    st.header("⚙️ Settings / تنظیمات")
-    language = st.radio("Language / زبان", ["English", "فارسی"])
+    st.markdown("### ⚙️ تنظیمات / Settings")
+    language = st.radio("زبان / Language", ["فارسی", "English"])
+    st.divider()
+    st.markdown(
+        """
+        <div style="font-size: 0.85rem; color: #888;">
+            <b>CodeReviewer AI v1.0</b><br>
+            Powered by Python AST & FastAPI
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 t = TRANSLATIONS[language]
 lang_code = t["lang_code"]
 
+# --- اصلاح دقیق استایل‌ها بدون آسیب زدن به انیمیشن سایدبار ---
+common_css = """
+<style>
+    .custom-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    div.stButton > button:first-child {
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1rem;
+        height: 3em;
+        transition: all 0.3s ease;
+    }
+</style>
+"""
+
+rtl_css = """
+<style>
+    /* اعمال RTL صرفا روی بدنه اصلی محتوا (Main Content Area) */
+    section.main > div {
+        direction: rtl;
+        text-align: right;
+    }
+    
+    /* تنظیمات اختصاصی سایدبار برای جلوگیری از باگ انیمیشن */
+    section[data-testid="stSidebar"] {
+        direction: rtl;
+        text-align: right;
+        overflow-x: hidden !important;
+    }
+    
+    /* چپ‌چین نگه داشتن ناحیه ویرایشگر کد */
+    textarea {
+        direction: ltr !important;
+        text-align: left !important;
+        font-family: 'Fira Code', 'Consolas', monospace !important;
+    }
+</style>
+"""
+
+st.markdown(common_css, unsafe_allow_html=True)
+if lang_code == "fa":
+    st.markdown(rtl_css, unsafe_allow_html=True)
+
+# --- هدر اصلی برنامه ---
 st.title(t["title"])
-st.subheader(t["subtitle"])
+st.caption(t["subtitle"])
+st.write("---")
 
-col1, col2 = st.columns([1, 1])
+# --- چیدمان اصلی ---
+col_input, col_output = st.columns([1.1, 0.9], gap="large")
 
-with col1:
+# === ستون سمت چپ: ورودی کد ===
+with col_input:
     st.markdown(f"### {t['input_header']}")
-    code_input = st.text_area(t["input_label"], value=t["default_code"], height=350)
-    
-    uploaded_file = st.file_uploader(t["upload_label"], type=["py"])
+
+    uploaded_file = st.file_uploader(
+        t["upload_label"], type=["py"], help="فایل پایتون خود را بکشید و رها کنید"
+    )
+
     if uploaded_file is not None:
-        code_input = uploaded_file.read().decode("utf-8")
+        input_text = uploaded_file.read().decode("utf-8")
+    else:
+        input_text = t["default_code"]
 
-    analyze_btn = st.button(t["btn_analyze"], type="primary", use_container_width=True)
+    code_input = st.text_area(
+        t["input_label"], value=input_text, height=380, key="code_editor"
+    )
 
-with col2:
+    analyze_btn = st.button(
+        t["btn_analyze"], type="primary", use_container_width=True
+    )
+
+# === ستون سمت راست: خروجی داشبورد ===
+with col_output:
     st.markdown(f"### {t['output_header']}")
-    
+
     if analyze_btn:
         if not code_input.strip():
             st.warning(t["empty_warning"])
         else:
-            with st.spinner("Analyzing code... / در حال بررسی..."):
+            with st.spinner("در حال آنالیز ساختار کد..."):
                 try:
-                    response = requests.post(BACKEND_URL, json={"code": code_input})
+                    response = requests.post(
+                        BACKEND_URL, json={"code": code_input}, timeout=10
+                    )
+
                     if response.status_code == 200:
                         data = response.json()
-                        
+
                         if not data["valid_syntax"]:
-                            st.error(f"{t['syntax_error']}\n\n`{data.get('error_message', '')}`")
+                            st.error(t["syntax_error"])
+                            st.code(
+                                data.get("error_message", ""), language="text"
+                            )
                         else:
                             score = data["score"]
-                            st.metric(label=t["score_label"], value=f"{score} / 100")
-                            
-                            metrics = data["metrics"]
-                            m_col1, m_col2, m_col3 = st.columns(3)
-                            m_col1.metric(t["metric_lines"], metrics["total_lines"])
-                            m_col2.metric(t["metric_funcs"], metrics["functions_count"])
-                            m_col3.metric(t["metric_classes"], metrics["classes_count"])
-                            
-                            st.divider()
-                            
-                            st.markdown(f"#### {t['issues_header']}")
-                            for issue in data["issues"]:
-                                text = issue.get(lang_code, issue.get("en"))
-                                st.write(f"- {text}")
-                                
-                            st.markdown(f"#### {t['suggestions_header']}")
-                            for sug in data["suggestions"]:
-                                text = sug.get(lang_code, sug.get("en"))
-                                st.write(f"- {text}")
-                                
+                            score_color = (
+                                "#22c55e"
+                                if score >= 80
+                                else "#f59e0b"
+                                if score >= 50
+                                else "#ef4444"
+                            )
+
+                            st.markdown(
+                                f"""
+                                <div class="custom-card" style="text-align: center; border-left: 6px solid {score_color};">
+                                    <span style="font-size: 1.1rem; color: #888;">{t['score_label']}</span>
+                                    <h1 style="font-size: 3.2rem; color: {score_color}; margin: 5px 0;">{score} <span style="font-size: 1.5rem;">/ 100</span></h1>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+
+                            tab_overview, tab_details = st.tabs(
+                                [t["tab_overview"], t["tab_issues"]]
+                            )
+
+                            with tab_overview:
+                                metrics = data["metrics"]
+                                m1, m2, m3 = st.columns(3)
+                                m1.metric(
+                                    t["metric_lines"], metrics["total_lines"]
+                                )
+                                m2.metric(
+                                    t["metric_funcs"], metrics["functions_count"]
+                                )
+                                m3.metric(
+                                    t["metric_classes"], metrics["classes_count"]
+                                )
+
+                            with tab_details:
+                                st.markdown(f"#### {t['issues_header']}")
+                                for issue in data["issues"]:
+                                    msg = issue.get(
+                                        lang_code, issue.get("en", "")
+                                    )
+                                    st.warning(msg, icon="⚠️")
+
+                                st.markdown(f"#### {t['suggestions_header']}")
+                                for sug in data["suggestions"]:
+                                    msg = sug.get(lang_code, sug.get("en", ""))
+                                    st.info(msg, icon="💡")
+
                 except Exception as e:
-                    st.error(f"{t['server_error']}{e}")
+                    st.error(f"{t['server_error']} `{e}`")
+    else:
+        st.info("کد خود را در بخش سمت چپ وارد کرده و دکمه بررسی را بزنید.")

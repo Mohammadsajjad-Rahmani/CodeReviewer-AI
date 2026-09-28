@@ -24,17 +24,24 @@ def analyze_python_code(code_str: str) -> dict:
     issues = []
     suggestions = []
 
+    # پیمایش ساختار درخت برای شناسایی توابع و کلاس‌ها
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
             classes_count += 1
 
-        elif isinstance(node, ast.FunctionDef):
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             functions_count += 1
             
+            # بررسی داشتن Docstring
             if not ast.get_docstring(node):
                 missing_docstrings.append(node.name)
                 
-            func_length = node.end_lineno - node.lineno
+            # محاسبه طول تابع با در نظر گرفتن end_lineno (پایتون ۳.۸+)
+            if hasattr(node, "end_lineno") and node.end_lineno:
+                func_length = node.end_lineno - node.lineno + 1
+            else:
+                func_length = len(node.body)
+
             if func_length > 15:
                 long_functions.append((node.name, func_length))
 
@@ -48,7 +55,7 @@ def analyze_python_code(code_str: str) -> dict:
         })
         suggestions.append({
             "en": "Add a short docstring to your functions so others understand what they do.",
-            "fa": "یک توضیح کوتاه (Docstring) به توابعت اضافه کن تا بقيه راحت‌تر کدتو بفهمن."
+            "fa": "یک توضیح کوتاه (Docstring) به توابعت اضافه کن تا بقیه راحت‌تر کدتو بفهمن."
         })
 
     if long_functions:
@@ -76,11 +83,13 @@ def analyze_python_code(code_str: str) -> dict:
             "fa": "کدت خیلی تمیز و خواناست!"
         })
 
+    lines = [line for line in code_str.strip().split("\n") if line.strip()]
+
     return {
         "valid_syntax": True,
         "score": score,
         "metrics": {
-            "total_lines": len(code_str.strip().split("\n")),
+            "total_lines": len(lines),
             "functions_count": functions_count,
             "classes_count": classes_count
         },
